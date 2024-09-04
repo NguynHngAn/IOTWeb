@@ -1,0 +1,104 @@
+﻿@page "/Lab"
+@inject NavigationManager _nav
+<h1>Lab</h1>
+<FluentDivider></FluentDivider>
+<FluentTabs ActiveTabId="tab-1">
+    <FluentTab Id="tab-1">
+        <Header>
+            <FluentIcon Value="@(new Icons.Regular.Size24.BookOpen())" />
+            Class 10
+        </Header>
+        <Content>
+
+            <FluentStack style="margin: 10px;">
+
+                <FluentCard Width="300px" Height="300px">
+                    <img src="https://i.pinimg.com/564x/ac/0f/3d/ac0f3d20c0fd61a30c050ec2e8ac1b49.jpg" alt="lab" width="200" height="150" />
+                    <p>This guide teaches step-by-step drawing instructions for How to Draw Newton's Second Law of Motion.</p>
+                    <FluentButton @onclick="@(e => _nav.NavigateTo("/FMA"))" IconStart="@(new Icons.Regular.Size16.ArrowForward())">
+                        Practice
+                    </FluentButton>
+                </FluentCard>
+
+                <FluentCard Width="300px" Height="300px">
+                    <img src="https://i.pinimg.com/564x/ac/0f/3d/ac0f3d20c0fd61a30c050ec2e8ac1b49.jpg" alt="lab" width="200" height="150" />
+                    <p>This guide teaches step-by-step drawing instructions for How to Draw Newton's Second Law of Motion.</p>
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowForward())">
+                        Practice
+                    </FluentButton>
+                </FluentCard>
+
+                <FluentCard Width="300px" Height="300px">
+                    <img src="https://i.pinimg.com/564x/ac/0f/3d/ac0f3d20c0fd61a30c050ec2e8ac1b49.jpg" alt="lab" width="200" height="150" />
+                    <p>This guide teaches step-by-step drawing instructions for How to Draw Newton's Second Law of Motion.</p>
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowForward())">
+                        Practice
+                    </FluentButton>
+                </FluentCard>
+
+                <FluentCard Width="300px" Height="300px">
+                    <img src="https://i.pinimg.com/564x/ac/0f/3d/ac0f3d20c0fd61a30c050ec2e8ac1b49.jpg" alt="lab" width="200" height="150" />
+                    <p>This guide teaches step-by-step drawing instructions for How to Draw Newton's Second Law of Motion.</p>
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowForward())">
+                        Practice
+                    </FluentButton>
+                </FluentCard>
+
+            </FluentStack>
+            
+            <FluentStack style="margin: 10px;">
+
+                <FluentCard Width="300px" Height="300px">
+                    <img src="https://i.pinimg.com/564x/ac/0f/3d/ac0f3d20c0fd61a30c050ec2e8ac1b49.jpg" alt="lab" width="200" height="150" />
+                    <p>This guide teaches step-by-step drawing instructions for How to Draw Newton's Second Law of Motion.</p>
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowForward())">
+                        Practice
+                    </FluentButton>
+                </FluentCard>
+
+                <FluentCard Width="300px" Height="300px">
+                    <img src="https://i.pinimg.com/564x/ac/0f/3d/ac0f3d20c0fd61a30c050ec2e8ac1b49.jpg" alt="lab" width="200" height="150" />
+                    <p>This guide teaches step-by-step drawing instructions for How to Draw Newton's Second Law of Motion.</p>
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowForward())">
+                        Practice
+                    </FluentButton>
+                </FluentCard>
+
+                <FluentCard Width="300px" Height="300px">
+                    <img src="https://i.pinimg.com/564x/ac/0f/3d/ac0f3d20c0fd61a30c050ec2e8ac1b49.jpg" alt="lab" width="200" height="150" />
+                    <p>This guide teaches step-by-step drawing instructions for How to Draw Newton's Second Law of Motion.</p>
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowForward())">
+                        Practice
+                    </FluentButton>
+                </FluentCard>
+
+                <FluentCard Width="300px" Height="300px">
+                    <img src="https://i.pinimg.com/564x/ac/0f/3d/ac0f3d20c0fd61a30c050ec2e8ac1b49.jpg" alt="lab" width="200" height="150" />
+                    <p>This guide teaches step-by-step drawing instructions for How to Draw Newton's Second Law of Motion.</p>
+                    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowForward())">
+                        Practice
+                    </FluentButton>
+                </FluentCard>
+
+            </FluentStack>
+        </Content>
+    </FluentTab>
+    <FluentTab Id="tab-2">
+        <Header>
+            <FluentIcon Value="@(new Icons.Regular.Size24.BookOpen())" />
+            Class 11
+        </Header>
+        <Content>
+            <h1>Comming soon!</h1>
+        </Content>
+    </FluentTab>
+    <FluentTab Id="tab-3">
+        <Header>
+            <FluentIcon Value="@(new Icons.Regular.Size24.BookOpen())" />
+            Class 12
+        </Header>
+        <Content>
+            <h1>Comming soon!</h1>
+        </Content>
+    </FluentTab>
+</FluentTabs>

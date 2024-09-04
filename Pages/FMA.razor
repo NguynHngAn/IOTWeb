@@ -1,0 +1,360 @@
+﻿@page "/FMA"
+@using ApexCharts
+@using IOTWeb.Services
+@using IOTWeb.Models
+@inject WebSocketService WebSocketService
+@implements IDisposable
+
+<PageTitle>FMA</PageTitle>
+
+<h2>FMALab</h2>
+<FluentDivider></FluentDivider>
+<FluentStack HorizontalGap="10" style="margin: 10px;">
+    <FluentButton IconStart="@(new Icons.Regular.Size16.Play())" @onclick="Start">
+        Play
+    </FluentButton>
+    <FluentButton IconStart="@(new Icons.Regular.Size16.Stop())" @onclick="Stop">
+        Stop
+    </FluentButton>
+    <FluentButton IconEnd="@(new Icons.Regular.Size16.Pause())">
+        Pause
+    </FluentButton>
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowClockwise())">
+        Brush
+    </FluentButton>
+    <FluentButton IconStart="@(new Icons.Regular.Size24.Wifi1())">
+        Connect
+    </FluentButton>
+    <FluentButton IconStart="@(new Icons.Regular.Size24.BookInformation())">
+        Information
+    </FluentButton>
+</FluentStack>
+<FluentGrid Style="padding: 4px; ">
+    <FluentGridItem xs="12" sm="6">
+        <div class="card">
+            <FluentTabs ActiveTabId="tab-1">
+                @if (NumberOfTime.Count > 0)
+                {
+                    int tabIndex = 0;
+                    foreach (var tabData in NumberOfTime)
+                    {
+                        tabIndex++;
+                        <FluentTab Label="@($"Number: {tabIndex}")" Id="@($"tab-{tabIndex}")">
+                             <Content>
+                                <div style="height: 500px; overflow-y: scroll;">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Count</th>
+                                            <th scope="col">Time</th>
+                                            <th scope="col">Acceleration</th>
+                                            <th scope="col">Force</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{int count = 0;}
+                                        @foreach (var item in tabData)
+                                        {
+                                            count++;
+                                            <tr>
+                                                <th scope="row">@count</th>
+                                                <td>@item.Timestamp</td>
+                                                <td>@item.Acceleration</td>
+                                                <td>@item.Force</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                </div>
+                             </Content>
+                        </FluentTab>
+                    }
+
+                }
+                else
+                {
+                    <p>No data available.</p>
+                }
+            </FluentTabs>
+
+        </div>
+    </FluentGridItem>
+    <FluentDivider></FluentDivider>
+    <FluentGridItem xs="12" sm="6">
+        <div class="card">
+            <ApexChart @ref="chartAcceleration" TItem="AccelAndForce"
+                       Title="Acceleration On Time"
+                       XAxisType="XAxisType.Numeric"
+                       Options=Accelerationoptions
+                       OnZoomed="Zoomed"
+                       Height="250">
+                <ApexPointSeries TItem="AccelAndForce"
+                                 Items="AccelerationData"
+                                 Name="Acceleration On Time"
+                                 SeriesType="SeriesType.Line"
+                                 XValue="@(e => e.Timestamp)"
+                                 YValue="@(e => (decimal)e.Acceleration)"
+                                 Stroke="@(new SeriesStroke { Width = 1, Color="#1F15E5"})" />
+            </ApexChart>
+
+            <ApexChart @ref="chartForce" TItem="AccelAndForce"
+                       Title="Force On Time"
+                       XAxisType="XAxisType.Numeric"
+                       Options=Forceoptions
+                       OnZoomed="Zoomed"
+                       Height="250">
+                <ApexPointSeries TItem="AccelAndForce"
+                                 Items="ForceData"
+                                 Name="Force On Time"
+                                 SeriesType="SeriesType.Line"
+                                 XValue="@(e => e.Timestamp)"
+                                 YValue="@(e => (decimal)e.Force)"
+                                 Stroke="@(new SeriesStroke { Width = 1, Color="#E51C15"})" />
+            </ApexChart>
+        </div>
+    </FluentGridItem>
+</FluentGrid>
+
+@code {
+    //Data for NumberOfTime To Show Table
+    private List<List<AccelAndForce>> NumberOfTime = new List<List<AccelAndForce>>();
+    //Data for AccelAndForce
+    private List<AccelAndForce> AAFData = new List<AccelAndForce>(); 
+    //Data for Acceleration
+    private List<AccelAndForce> AccelerationData = new List<AccelAndForce>();
+    //Data for Force
+    private List<AccelAndForce> ForceData = new List<AccelAndForce>();
+
+    //Intial Chart
+    private ApexChart<AccelAndForce>? AAFoptions;
+    private ApexChart<AccelAndForce>? chartAcceleration;
+    private ApexChart<AccelAndForce>? chartForce;
+
+    //Innitail Option 
+    private ApexChartOptions<AccelAndForce>? options;
+    private ApexChartOptions<AccelAndForce>? Accelerationoptions;
+    private ApexChartOptions<AccelAndForce>? Forceoptions;
+
+    private bool IsWebSocketConnected = false;
+    private Timer? UpdateTimer;
+
+
+
+    protected override void OnInitialized()
+    {
+        options = new ApexChartOptions<AccelAndForce>
+            {
+                Chart = new Chart
+                {
+                    Animations = new Animations
+                    {
+                        Enabled = true,
+                        Easing = Easing.Linear,
+                        DynamicAnimation = new DynamicAnimation
+                        {
+                            Speed = 950
+                        }
+                    }
+                },
+                Xaxis = new XAxis
+                {
+                    //Fixed(n) Applies only to XAxisType.Numeric
+                    DecimalsInFloat = 2,
+                    TickPlacement = TickPlacement.Between
+                },
+                Stroke = new Stroke { Curve = Curve.Straight }
+            };
+        Accelerationoptions = new ApexChartOptions<AccelAndForce>
+        {
+            Chart = new Chart
+            {
+                Animations = new Animations
+                {
+                    Enabled = true,
+                    Easing = Easing.Linear,
+                    DynamicAnimation = new DynamicAnimation
+                    {
+                        Speed = 950
+                    }
+                }
+            },
+            Xaxis = new XAxis
+            {
+                DecimalsInFloat = 2,
+                    TickPlacement = TickPlacement.Between
+            },
+            Stroke = new Stroke { Curve = Curve.Straight }
+        };
+
+        Forceoptions = new ApexChartOptions<AccelAndForce>
+        {
+            Chart = new Chart
+            {
+                Animations = new Animations
+                {
+                    Enabled = true,
+                    Easing = Easing.Linear,
+                    DynamicAnimation = new DynamicAnimation
+                    {
+                            Speed = 950
+                    }
+                }
+            },
+            Xaxis = new XAxis
+            {
+                DecimalsInFloat = 2,
+                TickPlacement = TickPlacement.Between
+            },
+            Stroke = new Stroke { Curve = Curve.Straight }
+        };
+        WebSocketService.OnAccelAndForceReceived += HandleAccelAndForceReceived;
+    }
+
+    private async Task Start()
+    {
+        if (!IsWebSocketConnected)
+        {
+            IsWebSocketConnected = true;
+            AccelerationData.Clear();
+            ForceData.Clear();
+            UpdateTimer = new Timer(_ => UpdateChart(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(10));
+            await WebSocketService.StartAsync();
+        }
+    }
+
+    //Handle data when receive data from socket
+    private void HandleAccelAndForceReceived(AccelAndForce data)
+    {
+        //Delete head element of list and add new data when reach 100
+        if (AccelerationData.Count > 100)
+        {
+            AccelerationData.RemoveAt(0);
+        }
+        if (ForceData.Count > 100)
+        {
+            ForceData.RemoveAt(0);
+        }
+        AAFData.Add(data);
+        AccelerationData.Add(new AccelAndForce
+            {
+                Timestamp = data.Timestamp,
+                Acceleration = data.Acceleration,
+                Force = 0 
+            });
+        ForceData.Add(new AccelAndForce
+            {
+                Timestamp = data.Timestamp,
+                Acceleration = 0, 
+                Force = data.Force
+            });
+    }
+
+    //Update chart with new list
+    private void UpdateChart()
+    {
+        InvokeAsync(() =>
+        {
+            chartAcceleration?.UpdateSeriesAsync(true);
+            chartForce?.UpdateSeriesAsync(true);
+        });
+    }
+
+    private void Stop()
+    {
+        if (IsWebSocketConnected)
+        {
+            WebSocketService.Stop();
+            IsWebSocketConnected = false;
+            UpdateTimer?.Dispose();
+
+            ReRenderChart();
+            if (AAFData.Any())
+            {
+                NumberOfTime.Add(CopyAccelAndForceList(AAFData));
+                AAFData.Clear();
+            }
+        }
+
+    }
+
+    //Rerender chart after stop receive data
+    private void ReRenderChart()
+    {
+        //Clear and readd data to rerenderchart
+        AccelerationData.Clear();
+        ForceData.Clear();
+        foreach (var item in AAFData)
+        {
+            AccelerationData.Add(new AccelAndForce { Timestamp = item.Timestamp, Acceleration = item.Acceleration, Force = 0 });
+            ForceData.Add(new AccelAndForce { Timestamp = item.Timestamp, Acceleration = 0, Force = item.Force });
+        }
+        chartAcceleration?.RenderAsync();
+        chartForce?.RenderAsync();
+    }
+
+    //Copy list to rerender chart
+    List<AccelAndForce> CopyAccelAndForceList(List<AccelAndForce> originalList)
+    {
+        List<AccelAndForce> copiedList = new List<AccelAndForce>();
+
+        foreach (var item in originalList)
+        {
+            copiedList.Add(new AccelAndForce
+                {
+                    Timestamp = item.Timestamp,
+                    Acceleration = item.Acceleration,
+                    Force = item.Force
+                });
+        }
+
+        return copiedList;
+    }
+
+    //Using zoomed evet in apexchart to select range data on chart
+    private async void Zoomed(ZoomedData<AccelAndForce> zoomedData)
+    {
+        if (zoomedData.IsZoomed)
+        {
+            float min = zoomedData.XAxis.Min.HasValue ? (float)Math.Round(zoomedData.XAxis.Min.Value, 2) : 0f;
+            float max = zoomedData.XAxis.Max.HasValue ? (float)Math.Round(zoomedData.XAxis.Max.Value, 2) : 0f;
+
+            //Initial range selected x -> x2
+            var RangeSlected = new AnnotationsXAxis
+                {
+                    X = min,
+                    X2 = max,
+                    FillColor = "#00FF7F",
+                    BorderWidth = 5,
+                };
+
+            if (zoomedData.Chart != null)
+            {
+                //Add range selected x -> x2
+                await zoomedData.Chart.AddXAxisAnnotationAsync(RangeSlected, false);
+
+                //Add vertical line x -> x2
+                float i = min;
+                while (i <= max)
+                {
+                    i = (float)Math.Round(i, 2);
+                    Console.WriteLine(i);
+                    var Point = new AnnotationsXAxis
+                        {
+                            X = i,
+                            BorderColor = "red",
+                            StrokeDashArray = 0
+                        };
+                    await zoomedData.Chart.AddXAxisAnnotationAsync(Point, false);
+                    i += 0.02f;
+                }
+            }
+        }
+    }
+
+    //Disconnect Socket when component is disposed
+    public void Dispose()
+    {
+        WebSocketService.OnAccelAndForceReceived -= HandleAccelAndForceReceived;
+        Stop();
+    }
+}

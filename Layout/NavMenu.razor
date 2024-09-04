@@ -1,0 +1,18 @@
+﻿<div class="navmenu">
+    <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
+    <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" Color="Color.Fill" /></label>
+    <nav class="sitenav" aria-labelledby="main-menu">
+        <FluentNavMenu Id="main-menu" Width="250" Collapsible="true" Title="Navigation menu" @bind-Expanded="expanded" CustomToggle="true">
+            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(currentPage == "/" ? new Icons.Filled.Size32.Home() : new Icons.Regular.Size32.Home())" IconColor="Color.Accent" @onclick="@(e => currentPage = "/")">Home</FluentNavLink>
+            <FluentNavLink Href="/Chat" Match="NavLinkMatch.All" Icon="@(currentPage == "/Chat" ? new Icons.Filled.Size32.Chat() : new Icons.Regular.Size32.Chat())" IconColor="Color.Accent" @onclick="@(e => currentPage = "/Chat")">Chat</FluentNavLink>
+            <FluentNavLink Href="/Group" Match="NavLinkMatch.All" Icon="@(currentPage == "/Group" ? new Icons.Filled.Size32.PeopleCommunity() : new Icons.Regular.Size32.PeopleCommunity())" IconColor="Color.Accent" @onclick="@(e => currentPage = "/Group")">Group</FluentNavLink>
+            <FluentNavLink Href="/Assignment" Match="NavLinkMatch.All" Icon="@(currentPage == "/Assignment" ? new Icons.Filled.Size32.Backpack() : new Icons.Regular.Size32.Backpack())" IconColor="Color.Accent" @onclick="@(e => currentPage = "/Assignment")">Assignment</FluentNavLink>
+            <FluentNavLink Href="/Lab" Match="NavLinkMatch.All" Icon="@(currentPage == "/Lab" ? new Icons.Filled.Size32.Beaker() : new Icons.Regular.Size32.Beaker())" IconColor="Color.Accent" @onclick="@(e => currentPage = "/Lab")">Lab</FluentNavLink>
+        </FluentNavMenu>
+    </nav>
+</div>
+
+@code {
+    private bool expanded = true;
+    private string currentPage = "/";
+}
